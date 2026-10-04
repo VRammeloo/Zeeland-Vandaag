@@ -13,11 +13,11 @@
   ];
 
   var FEEDS = [
-    { key: "omroepzeeland", name: "Omroep Zeeland", url: "https://www.omroepzeeland.nl/rss.xml" },
+    { key: "omroepzeeland", name: "Omroep Zeeland", url: "https://www.omroepzeeland.nl/rss" },
     { key: "pzc", name: "PZC", url: "https://www.pzc.nl/rss.xml" },
     { key: "bndestem", name: "BN DeStem", url: "https://www.bndestem.nl/rss.xml" },
     { key: "hvzeeland", name: "HVZeeland", url: "https://www.hvzeeland.nl/RSS/Nieuws" },
-    { key: "politie", name: "Politie Zeeland", url: "https://www.politie.nl/rss/zeeland.xml" },
+    { key: "politie", name: "Politie Zeeland", url: "https://rss.politie.nl/rss/ab/provincies/zeeland.xml" },
     { key: "zvl", name: "Omroep ZVL", url: "https://www.omroepzvl.nl/nieuws" },
     { key: "avs", name: "AVS (Oost-Vlaanderen)", url: "https://avs.be/nieuws" }
   ];
@@ -147,8 +147,16 @@
     var promises = FEEDS.map(function (feed) {
       return fetch(proxiedUrl(feed.url))
         .then(function (r) {
-          if (!r.ok) throw new Error(feed.name + ": HTTP " + r.status);
-          return r.text();
+          if (!r.ok) {
+            return r.text().catch(function () { return ""; }).then(function (t) {
+              var detail = (t || "").split("\n")[0].slice(0, 120);
+              throw new Error(feed.name + ": HTTP " + r.status + (detail ? " — " + detail : ""));
+            });
+          }
+          return r.text().then(function (text) {
+            if (!text || text.length < 40) throw new Error(feed.name + ": leeg antwoord van proxy");
+            return text;
+          });
         })
         .then(function (text) {
           var parsed = parseRssText(text);
@@ -160,7 +168,9 @@
         })
         .catch(function (err) {
           console.warn("Feed mislukt:", feed.name, err);
-          return { failed: feed.name };
+          var reason = err && err.message ? err.message : "onbekende fout";
+          var m = reason.match(/:\s*(.+)$/);
+          return { failed: feed.name + " (" + (m ? m[1] : reason) + ")" };
         });
     });
 
