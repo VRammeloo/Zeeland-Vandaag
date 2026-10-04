@@ -13,9 +13,9 @@
   ];
 
   var FEEDS = [
-    { key: "omroepzeeland", name: "Omroep Zeeland", url: "https://www.omroepzeeland.nl/rss" },
-    { key: "pzc", name: "PZC", url: "https://www.pzc.nl/rss.xml" },
-    { key: "bndestem", name: "BN DeStem", url: "https://www.bndestem.nl/rss.xml" },
+    { key: "omroepzeeland", name: "Omroep Zeeland", url: "https://www.omroepzeeland.nl/rss/index.xml" },
+    { key: "pzc", name: "PZC", url: "https://news.google.com/rss/search?q=site:pzc.nl+zeeland&hl=nl&gl=NL&ceid=NL:nl" },
+    { key: "bndestem", name: "BN DeStem", url: "https://news.google.com/rss/search?q=site:bndestem.nl+zeeland&hl=nl&gl=NL&ceid=NL:nl" },
     { key: "hvzeeland", name: "HVZeeland", url: "https://www.hvzeeland.nl/RSS/Nieuws" },
     { key: "politie", name: "Politie Zeeland", url: "https://rss.politie.nl/rss/ab/provincies/zeeland.xml" },
     { key: "zvl", name: "Omroep ZVL", url: "https://www.omroepzvl.nl/nieuws" },

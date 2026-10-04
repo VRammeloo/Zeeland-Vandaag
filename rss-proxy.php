@@ -21,6 +21,7 @@ $allowed_hosts = [
     'omroepzvl.nl',
     'avs.be',
     'www.avs.be',
+    'news.google.com',
 ];
 
 $url = isset($_GET['url']) ? $_GET['url'] : '';
@@ -53,6 +54,7 @@ function fetch_url($url, $user_agent) {
         CURLOPT_USERAGENT => $user_agent,
         CURLOPT_ACCEPT_ENCODING => '',
         CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSLVERSION => CURL_SSLVERSION_TLSv1_2,
         CURLOPT_HTTPHEADER => [
             'Accept: text/html, application/rss+xml, application/xml, text/xml, */*',
             'Accept-Language: nl-NL,nl;q=0.9,en;q=0.6',
