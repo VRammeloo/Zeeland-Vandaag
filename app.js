@@ -17,7 +17,7 @@
     { key: "pzc", name: "PZC", url: "https://www.pzc.nl/rss.xml" },
     { key: "bndestem", name: "BN DeStem", url: "https://www.bndestem.nl/rss.xml" },
     { key: "hvzeeland", name: "HVZeeland", url: "https://www.hvzeeland.nl/RSS/Nieuws" },
-    { key: "provincie", name: "Provincie Zeeland", url: "https://www.zeeland.nl/rss/nieuws.xml" }
+    { key: "politie", name: "Politie Zeeland", url: "https://www.politie.nl/rss/zeeland.xml" }
   ];
 
   var DAYS_TO_SHOW = 3;         // keep items from the last N days in memory
