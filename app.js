@@ -103,8 +103,8 @@
   // --- State ---------------------------------------------------------------
   var items = [];
   var selectedDay = todayKey();
-  var activeSource = "all";
-  var activeCategory = "all";
+  var activeSources = [];      // empty = all sources
+  var activeCategories = [];    // empty = all categories
   var query = "";
 
   // --- DOM -------------------------------------------------------------------
@@ -113,7 +113,6 @@
   var listEl = el("newsList");
   var summaryEl = el("summary");
   var dayLabelEl = el("dayLabel");
-  var sourceFilterEl = el("sourceFilter");
   var searchEl = el("search");
   var refreshBtn = el("refresh");
 
@@ -285,8 +284,10 @@
   function render() {
     dayLabelEl.textContent = formatDayLabel(selectedDay);
     var dayItems = itemsForDay(selectedDay);
-    if (activeSource !== "all") dayItems = dayItems.filter(function (it) { return it.sourceKey === activeSource; });
-    if (activeCategory !== "all") dayItems = dayItems.filter(function (it) { return it.category === activeCategory; });
+    if (activeSources.length) dayItems = dayItems.filter(function (it) { return activeSources.indexOf(it.sourceKey) !== -1; });
+    if (activeCategories.length) {
+      dayItems = dayItems.filter(function (it) { return it.category && activeCategories.indexOf(it.category) !== -1; });
+    }
     if (query) {
       var q = query.toLowerCase();
       dayItems = dayItems.filter(function (it) {
@@ -374,36 +375,40 @@
       " van " + Object.keys(bySource).length + " bron(nen): " + parts.join(", ");
   }
 
-  function renderCategoryFilter() {
-    var sel = el("categoryFilter");
-    if (!sel) return;
-    sel.innerHTML = "";
-    var optAll = document.createElement("option");
-    optAll.value = "all";
-    optAll.textContent = "Alle categorieën";
-    sel.appendChild(optAll);
-    CATEGORIES.forEach(function (c) {
-      var o = document.createElement("option");
-      o.value = c.key;
-      o.textContent = c.name;
-      sel.appendChild(o);
+  function makeChipGroup(containerId, entries, selected, onToggle) {
+    var container = el(containerId);
+    if (!container) return;
+    container.innerHTML = "";
+    entries.forEach(function (entry) {
+      var chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "chip" + (selected.indexOf(entry.key) !== -1 ? " chip-on" : "");
+      chip.textContent = entry.name;
+      chip.setAttribute("aria-pressed", selected.indexOf(entry.key) !== -1 ? "true" : "false");
+      chip.addEventListener("click", function () {
+        var idx = selected.indexOf(entry.key);
+        if (idx === -1) selected.push(entry.key);
+        else selected.splice(idx, 1);
+        chip.classList.toggle("chip-on");
+        chip.setAttribute("aria-pressed", idx === -1 ? "true" : "false");
+        onToggle();
+      });
+      container.appendChild(chip);
     });
-    sel.value = activeCategory;
+  }
+
+  function renderCategoryFilter() {
+    makeChipGroup("categoryFilters", CATEGORIES, activeCategories, function () {
+      saveSettings();
+      render();
+    });
   }
 
   function renderSourceFilter() {
-    sourceFilterEl.innerHTML = "";
-    var optAll = document.createElement("option");
-    optAll.value = "all";
-    optAll.textContent = "Alle bronnen";
-    sourceFilterEl.appendChild(optAll);
-    FEEDS.forEach(function (f) {
-      var o = document.createElement("option");
-      o.value = f.key;
-      o.textContent = f.name;
-      sourceFilterEl.appendChild(o);
+    makeChipGroup("sourceFilters", FEEDS, activeSources, function () {
+      saveSettings();
+      render();
     });
-    sourceFilterEl.value = activeSource;
   }
 
   function renderFooter() {
@@ -422,8 +427,8 @@
   function saveSettings() {
     try {
       localStorage.setItem(SETTINGS_KEY, JSON.stringify({
-        source: activeSource,
-        category: activeCategory,
+        sources: activeSources,
+        categories: activeCategories,
         query: query
       }));
     } catch (e) { /* negeren */ }
@@ -431,15 +436,22 @@
   function loadSettings() {
     try {
       var s = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}");
-      if (s.source) activeSource = s.source;
-      if (s.category) activeCategory = s.category;
+      if (Array.isArray(s.sources)) {
+        activeSources = s.sources.filter(function (k) {
+          return FEEDS.some(function (f) { return f.key === k; });
+        });
+      } else if (s.source) {
+        activeSources = [s.source];
+      }
+      if (Array.isArray(s.categories)) {
+        activeCategories = s.categories.filter(function (k) {
+          return CATEGORIES.some(function (c) { return c.key === k; });
+        });
+      } else if (s.category) {
+        activeCategories = [s.category];
+      }
       if (s.query) query = s.query;
     } catch (e) { /* negeren */ }
-  }
-  sourceFilterEl.addEventListener("change", function () { activeSource = sourceFilterEl.value; saveSettings(); render(); });
-  var categoryFilterEl = el("categoryFilter");
-  if (categoryFilterEl) {
-    categoryFilterEl.addEventListener("change", function () { activeCategory = categoryFilterEl.value; saveSettings(); render(); });
   }
   searchEl.addEventListener("input", function () { query = searchEl.value.trim(); saveSettings(); render(); });
   refreshBtn.addEventListener("click", function () { localStorage.removeItem(CACHE_KEY); fetchAll(); });

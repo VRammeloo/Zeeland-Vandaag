@@ -160,3 +160,33 @@ article.card a.headline:hover { color: var(--accent); text-decoration: underline
 .cat-gezondheid { background: #059669; }
 .cat-verkeer { background: #475569; }
 .cat-landbouw { background: #65a30d; }
+
+/* Multi-select filter chips */
+.chip-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+.chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.chip {
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--muted);
+  border-radius: 16px;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.chip:hover { border-color: var(--accent); color: var(--accent); }
+.chip-on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
