@@ -42,7 +42,7 @@
   // breaking news come first so outdoor/event items don't get pulled
   // into Milieu & Natuur by broad words like "natuur" or "kust".
   var CATEGORY_KEYWORDS = {
-    sport: ["voetbal", "wedstrijd", "uitslagen", "eindstand", "kustmarathon", "marathon", "wielrennen", "wieler", "koers", "scheldeprijs", "hardlopen", "atletiek", "atlete", "tennis", "hockey", "volleybal", "handbal", "basketbal", "zwemwedstrijd", "schaats", "judoka", "bokser", "kickboks", "mma", "frisbee", "gevechtssport", "kampioen", "titelgevecht", "titelkandidaat", "beker", "competitie", "divisievoetbal", "amateurvoetbal", "ongeslagen", "wint", "zege", "verliest", "verlies van", "revelatie", "degradatie", "promotie", "trainer", "coach", "speler", "speelster", "selectie", "opstelling", "doelpunt", "assists", "defensive", "kloetinge", "de treffers", "rijnsburgse", "hoek geeft", "hsv hoek", "jong sparta", "volendam", "dunkerbeck", "windsurf", "dam-x", "triatlon", "triatlonweekend", "ladiesrun", "trailrun", "kustrun", "ironman", "rive", "ronde van", "tour", "ek wielrennen", "ek ", "wk ", "olympische", "olympische spellen", "golfer", "paardensport", "springruiter", "dressuur", "zeilwedstrijd", "breskens sailing", "roeien", "roeivereniging", "kano", "kajak"],
+    sport: ["voetbal", "wedstrijd", "uitslagen", "eindstand", "kustmarathon", "marathon", "wielrennen", "wieler", "koers", "scheldeprijs", "hardlopen", "atletiek", "atlete", "tennis", "hockey", "volleybal", "handbal", "basketbal", "zwemwedstrijd", "schaats", "judoka", "bokser", "kickboks", "mma", "frisbee", "gevechtssport", "kampioen", "titelgevecht", "titelkandidaat", "beker", "competitie", "divisievoetbal", "amateurvoetbal", "ongeslagen", "wint", "zege", "verliest", "verlies van", "revelatie", "degradatie", "promotie", "trainer", "coach", "speler", "speelster", "selectie", "opstelling", "doelpunt", "assists", "defensive", "kloetinge", "de treffers", "rijnsburgse", "hoek geeft", "hsv hoek", "jong sparta", "volendam", "dunkerbeck", "windsurf", "dam-x", "triatlon", "triatlonweekend", "ladiesrun", "trailrun", "kustrun", "ironman", "rive", "ronde van", "tour", "ek wielrennen", "olympische", "olympische spellen", "golfer", "paardensport", "springruiter", "dressuur", "zeilwedstrijd", "breskens sailing", "roeien", "roeivereniging", "kano", "kajak"],
     breaking: ["politie", "brandweer", "ambulance", "ongeval", "aanrijding", "botsing", "brand", "klapt", "dood", "dode", "overleden", "vermoord", "moord", "doding", "slachtoffer", "gewond", "gewonden", "zwaargewond", "levensgevaar", "spoed", "112", "traumahelikopter", "reddings", "vermist", "vermissing", "aangehouden", "arrestatie", "opgepakt", "verdachte", "inbraak", "diefstal", "overval", "nepagenten", "vechtpartij", "steekpartij", "schietpartij", "explosie", "gaslek", "placeverbod", "bekeuringen", "rijbewijs ingenomen", "rijbewijs inleveren", "dronken bestuurder", "flitstaking", "rechtbank", "parket", "justitie", "recherche", "opsporingsbericht", "cyberaanval", "datalek", "hacker", "oplichting", "afpersing", "verkrachting", "aanranding", "mishandeling", "sloopkogel", "sloop", "ontruimd", "evacuatie"],
     politiek: ["gemeenteraad", "provincieraad", "provinciebestuur", "gedeputeerde", "gouverneur", "burgemeester", "wethouder", "schepen", "college van b&w", "college van burgemeester", "parlement", "tweede kamer", "eerste kamer", "minister", "raadsvergadering", "raadsbesluit", "raad stemt", "stemt in met", "motie", "amendement", "wetsvoorstel", "grondruil", "ontheffing", "subsidie", "begroting", "belasting", "heffing", "tarieven", "coalitie", "coalitieakkoord", "oppositie", "verkiezing", "partij", "cda", "vvd", "d66", "pvda", "groenlinks", "n-va", "open vld", "cd&v", "vooruit", "vlaams belang", "provinciale staten", "vlaamse regering", "besparing", "besparingen", "protest", "demonstratie", "betoging", "prinsjesdag", "beleid", "regelgeving", "regeling", "ambtenaren", "bestuur", "stikstofzones", "azc", "asielzoekers", "opvanglocatie", "opvangcentrum", "vluchtelingen"],
     economie: ["economie", "bedrijf", "bedrijven", "ondernemer", "ondernemers", "werkgelegenheid", "vacature", "vacatures", "sollicit", "investering", "investeringen", "miljoen", "miljoenen", "omzet", "winst", "faillissement", "haven", "north sea port", "industrie", "fabriek", "logistiek", "hotel", "hotels", "horeca", "winkel", "winkels", "winkelcentrum", "supermarkt", "vastgoed", "bedrijventerrein", "kerncentrale", "kernenergie", "smr", "datacenter", "start-up", "startup", "scale-up", "personeel", "jobs", "sollicitanten", "loon", "lonen", "cao", "vakbond", "staking", "arbeidsmarkt", "werkloosheid", "ontslag", "arbeiders", "arbeiders", "havenbedrijven", "talent-sharing", "werkgevers", "uitkeringen", "uwv", "leidt", "baan", "banen", "kansen op de arbeidsmarkt", "toekomst van het werk"],
@@ -54,13 +54,42 @@
     verkeer: ["verkeer", "verkeersongeval", "verkeerssituatie", "verkeerscontrole", "verkeersles", "verkeersveilig", "mobiliteit", "mobiliteitsbudget", "mobiliteitshubs", "vervoer", "vervoersplan", "vervoersarmoede", "openbaar vervoer", "bus", "bussen", "trein", "treinen", "treinregeling", "spoor", "spoorwerken", "spooronderhoud", "station", "perron", "reizigers", "wegwerkzaamheden", "asfalt", "voegovergangen", "rijstrook", "afsluiting", "afgesloten", "dicht voor", "omleiding", "file", "files", "weggebruiker", "voetganger", "fiets", "fietsers", "fietspad", "fietstaxi", "fietstaxis", "fietsbrug", "pumptrack", "pumptrackbaan", "verkeersbord", "snelheidsbeperking", "flitspaal", "tol", "tolvignet", "tunnel", "westerscheldetunnel", "brug", "bruggen", "vossemeersebrug", "firtelbrug", "sluis", "sluizen", "kade", "kaai", "parkeer", "parkeren", "parkeerboetes", "parkeerzone", "parking", "verkeersmaatregel", "straatlicht", "straatverlichting", "slimme", "rotonde", "rondpunt", "knooppunt", "wegennet", "snelweg", "a58", "n57", "n61", "n290", "n60", "e34", "e40", "e17", "pont", "veerpont", "veerdienst", "voetveer", "weg", "rijdt", "auto", "automobilist", "automobiliste", "bestuurder", "bestuurster", "motorrijder", "scooter", "scooterbestuurder", "vrachtwagen", "bestelbus", "tram", "metro", "luchthaven", "hubs", "stroom", "filevrij", "doorstroming", "uitval", "parkeergelegenheid"],
     landbouw: ["landbouw", "akkerbouw", "tuinbouw", "boer", "boeren", "melkboer", "veeteelt", "pluimvee", "varkens", "rundvee", "koeien", "kaas", "boerderij", "hoeve", "mest", "gewas", "oogst", "oogsten", "aardappel", "aardappelen", "tarwe", "graan", "suikerbiet", "bieten", "appels", "fruitteelt", "boomgaard", "boomgaarden", "druiven", "wijnbouw", "aardbeien", "asperges", "champignons", "serres", "serre", "kassen", "landbouwmachines", "tractor", "tractors", "hooien", "grasland", "weide", "schapen", "kudde", "herder", "biologisch", "platteland", "agrarisch", "agrarische", "pachter", "akker", "akkers", "landgebruik", "visser", "vissers", "visserij", "kotter", "netten", "quota", "vissen", "aquacultuur", "oester", "oesters", "mosselen", "mossel", "mosselkweker", "kreeft", "garnalen", "vangst", "visafslag", "vlas", "coöperatie", "veiling", "tuinders", "tuinder", "kwekerij", "kwekerijen", "landbouwbeleid", "glastuinbouw"]
   };
+  // Token-based matching: words are compared on word boundaries with Dutch
+  // plural stripping (simple Snowball-style suffix rules), so "boerderij"
+  // matches "boerderijen" but "weg" no longer matches "inweg". Keywords
+  // containing spaces or hyphens are matched as phrases on word boundaries.
+  function tokenize(text) {
+    return text.toLowerCase()
+      .split(/[^a-z0-9&\u00C0-\u017F]+/)
+      .filter(function (w) { return w.length > 1; });
+  }
+  var PLURAL_SUFFIXES = ["eren", "en", "s", "'s", "es", "eren "];
+  function isPluralOf(word, base) {
+    if (word === base) return true;
+    if (word.length <= base.length) return false;
+    for (var i = 0; i < PLURAL_SUFFIXES.length; i++) {
+      if (word === base + PLURAL_SUFFIXES[i]) return true;
+    }
+    return false;
+  }
+  function textHasKeyword(tokens, keyword) {
+    var kw = keyword.toLowerCase();
+    if (kw.indexOf(" ") !== -1 || kw.indexOf("-") !== -1) {
+      var phrase = kw.replace(/-/g, " ");
+      return (" " + tokens.join(" ") + " ").indexOf(" " + phrase + " ") !== -1;
+    }
+    for (var i = 0; i < tokens.length; i++) {
+      if (isPluralOf(tokens[i], kw) || isPluralOf(kw, tokens[i])) return true;
+    }
+    return false;
+  }
   function classifyItem(it) {
-    var text = (it.title + " " + (it.description || "")).toLowerCase();
+    var tokens = tokenize(it.title + " " + (it.description || ""));
     for (var i = 0; i < CATEGORIES.length; i++) {
       var cat = CATEGORIES[i];
       var kws = CATEGORY_KEYWORDS[cat.key] || [];
       for (var j = 0; j < kws.length; j++) {
-        if (text.indexOf(kws[j]) !== -1) return cat.key;
+        if (textHasKeyword(tokens, kws[j])) return cat.key;
       }
     }
     return null;
@@ -68,6 +97,7 @@
 
   var DAYS_TO_SHOW = 3;         // keep items from the last N days in memory
   var CACHE_KEY = "zeeland-vandaag-cache";
+  var SETTINGS_KEY = "zeeland-vandaag-settings";
   var CACHE_TTL_MS = 15 * 60 * 1000;
 
   // --- State ---------------------------------------------------------------
@@ -389,18 +419,37 @@
     if (selectedDay !== todayKey()) { selectedDay = shiftDay(selectedDay, 1); render(); }
   });
   el("todayBtn").addEventListener("click", function () { selectedDay = todayKey(); render(); });
-  sourceFilterEl.addEventListener("change", function () { activeSource = sourceFilterEl.value; render(); });
+  function saveSettings() {
+    try {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify({
+        source: activeSource,
+        category: activeCategory,
+        query: query
+      }));
+    } catch (e) { /* negeren */ }
+  }
+  function loadSettings() {
+    try {
+      var s = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}");
+      if (s.source) activeSource = s.source;
+      if (s.category) activeCategory = s.category;
+      if (s.query) query = s.query;
+    } catch (e) { /* negeren */ }
+  }
+  sourceFilterEl.addEventListener("change", function () { activeSource = sourceFilterEl.value; saveSettings(); render(); });
   var categoryFilterEl = el("categoryFilter");
   if (categoryFilterEl) {
-    categoryFilterEl.addEventListener("change", function () { activeCategory = categoryFilterEl.value; render(); });
+    categoryFilterEl.addEventListener("change", function () { activeCategory = categoryFilterEl.value; saveSettings(); render(); });
   }
-  searchEl.addEventListener("input", function () { query = searchEl.value.trim(); render(); });
+  searchEl.addEventListener("input", function () { query = searchEl.value.trim(); saveSettings(); render(); });
   refreshBtn.addEventListener("click", function () { localStorage.removeItem(CACHE_KEY); fetchAll(); });
 
   // --- Init ---------------------------------------------------------------------
+  loadSettings();
   renderFooter();
   renderSourceFilter();
   renderCategoryFilter();
+  searchEl.value = query;
   var cached = loadCache();
   if (cached) {
     items = cached;

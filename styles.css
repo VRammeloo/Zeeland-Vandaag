@@ -97,9 +97,9 @@ article.card {
 }
 article.card:hover { box-shadow: 0 3px 12px rgba(2, 32, 71, 0.1); }
 article.card a.headline {
-  font-size: 1.02rem;
-  font-weight: 600;
-  color: var(--ink);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
   text-decoration: none;
 }
 article.card a.headline:hover { color: var(--accent); text-decoration: underline; }
@@ -112,7 +112,7 @@ article.card a.headline:hover { color: var(--accent); text-decoration: underline
   margin-bottom: 4px;
 }
 .card .meta .time { font-weight: 600; color: var(--accent); }
-.card .desc { margin: 4px 0 0; font-size: 0.9rem; color: #334155; }
+.card .desc { margin: 5px 0 0; font-size: 0.88rem; font-weight: 400; color: #64748b; line-height: 1.45; }
 
 .empty {
   margin-top: 24px;
