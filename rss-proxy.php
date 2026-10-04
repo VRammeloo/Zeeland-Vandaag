@@ -2,8 +2,8 @@
 // Zeeland Vandaag — tiny self-hosted RSS proxy.
 // Upload this file next to index.html on any PHP host (e.g. rammeloo.eu).
 // It fetches RSS feeds server-side so the browser avoids CORS issues.
-// For sources without an RSS feed (Omroep ZVL) it scrapes the news page
-// and emits RSS on the fly.
+// For sources without an RSS feed (Omroep ZVL, AVS) it scrapes the news
+// page and emits RSS on the fly.
 
 $allowed_hosts = [
     'www.omroepzeeland.nl',
@@ -19,8 +19,8 @@ $allowed_hosts = [
     'rss.politie.nl',
     'www.omroepzvl.nl',
     'omroepzvl.nl',
-    'www.nieuwsblad.be',
-    'nieuwsblad.be',
+    'avs.be',
+    'www.avs.be',
 ];
 
 $url = isset($_GET['url']) ? $_GET['url'] : '';
@@ -73,41 +73,69 @@ function fail($msg) {
     exit($msg);
 }
 
-function xml_out($xml, $contentType) {
-    $ct = strtolower($contentType ?: '');
-    if (strpos($ct, 'html') !== false) fail('bron gaf HTML terug in plaats van RSS (feed-URL verouderd?)');
-    header('Content-Type: ' . ($contentType ?: 'application/rss+xml; charset=utf-8'));
-    header('Cache-Control: public, max-age=300');
-    echo $xml;
-}
-
-// --- Scrape mode: Omroep ZVL news page -> RSS ------------------------------
-function scrape_zvl($html) {
+// --- Scrape mode: HTML news listing -> RSS ---------------------------------
+// Handles sources without an RSS feed. Extracts article links, titles,
+// and (when present) Dutch dates like "za 3 oktober".
+function scrape_listing($html, $source_host) {
     $dom = new DOMDocument();
     libxml_use_internal_errors(true);
     $dom->loadHTML($html);
     libxml_clear_errors();
     $xpath = new DOMXPath($dom);
 
+    $month_map = [
+        'januari' => 1, 'februari' => 2, 'maart' => 3, 'april' => 4,
+        'mei' => 5, 'juni' => 6, 'juli' => 7, 'augustus' => 8,
+        'september' => 9, 'oktober' => 10, 'november' => 11, 'december' => 12,
+    ];
+
     $seen = [];
     $items = '';
-    $nodes = $xpath->query("//a[contains(@href,'/nieuws/')]");
+    $nodes = $xpath->query('//a[@href]');
     foreach ($nodes as $node) {
         $href = $node->getAttribute('href');
-        if (strpos($href, 'http') !== 0) $href = 'https://www.omroepzvl.nl' . $href;
+        if (preg_match('~^https?://~i', $href) && stripos($href, $source_host) === false) continue;
+        if (strpos($href, 'http') !== 0) $href = 'https://' . $source_host . (strpos($href, '/') === 0 ? $href : '/' . $href);
+        $path = parse_url($href, PHP_URL_PATH);
+
+        $is_article = false;
+        if ($source_host === 'www.omroepzvl.nl') {
+            $is_article = (bool) preg_match('~/nieuws/.+~', $path);
+        } elseif ($source_host === 'avs.be') {
+            $is_article = (bool) preg_match('~/nieuws/.+~', $path) && !preg_match('~/nieuws/?$~', $path);
+        }
+        if (!$is_article) continue;
+
         $href = strtok($href, '?#');
         if (isset($seen[$href])) continue;
-        if (preg_match('~/nieuws/(\d+)$~', $href) === false && strpos($href, '/nieuws/') === false) continue;
+
+        $title = trim(preg_replace('/\s+/u', ' ', $node->textContent));
+        if ($title === '' || mb_strlen($title) < 8) continue;
         $seen[$href] = true;
 
-        $title = trim($node->textContent);
-        if ($title === '') continue;
-        $title = preg_replace('/\s+/u', ' ', $title);
+        // Look for a Dutch date near the link: search ancestors for text like "za 3 oktober"
+        $date = null;
+        $p = $node->parentNode;
+        for ($i = 0; $i < 4 && $p; $i++) {
+            $txt = $p->textContent;
+            if (preg_match('~\b(vr|za|zo|ma|di|wo|do)\s+(\d{1,2})\s+([a-z]+)~iu', $txt, $m)) {
+                $mon = mb_strtolower($m[3]);
+                if (isset($month_map[$mon])) {
+                    $y = (int) date('Y');
+                    $ts = mktime(12, 0, 0, $month_map[$mon], (int) $m[2], $y);
+                    if ($ts > time() + 86400) $ts = mktime(12, 0, 0, $month_map[$mon], (int) $m[2], $y - 1);
+                    $date = date('D, d M Y H:i:s O', $ts);
+                }
+                break;
+            }
+            $p = $p->parentNode;
+        }
 
         $items .= "    <item>\n"
             . "      <title>" . htmlspecialchars($title, ENT_XML1, 'UTF-8') . "</title>\n"
             . "      <link>" . htmlspecialchars($href, ENT_XML1, 'UTF-8') . "</link>\n"
             . "      <guid>" . htmlspecialchars($href, ENT_XML1, 'UTF-8') . "</guid>\n"
+            . ($date ? "      <pubDate>" . $date . "</pubDate>\n" : '')
             . "    </item>\n";
         if (count($seen) >= 30) break;
     }
@@ -116,8 +144,8 @@ function scrape_zvl($html) {
 
     return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
         . "<rss version=\"2.0\">\n  <channel>\n"
-        . "    <title>Omroep ZVL - Nieuws</title>\n"
-        . "    <link>https://www.omroepzvl.nl/nieuws</link>\n"
+        . "    <title>Nieuws</title>\n"
+        . "    <link>" . htmlspecialchars('https://' . $source_host, ENT_XML1, 'UTF-8') . "</link>\n"
         . $items
         . "  </channel>\n</rss>\n";
 }
@@ -132,13 +160,12 @@ if ($status >= 400) {
     fail('bron reageert met HTTP ' . $status . ' (toegang geblokkeerd?)');
 }
 
-$ct = strtolower($contentType);
-$is_html = $ct && strpos($ct, 'html') !== false;
+$ct = strtolower($contentType ?: '');
+$is_html = strpos($ct, 'html') !== false;
+$looks_xml = (strpos($body, '<rss') !== false) || (strpos($body, '<feed') !== false) || (strpos($body, '<?xml') !== false);
 
-if ($is_html) {
-    // No pubDates available from the listing page; emit items undated so the
-    // app treats them as "recent" via its fallback.
-    $rss = scrape_zvl($body);
+if ($is_html && !$looks_xml) {
+    $rss = scrape_listing($body, strtolower($host));
     if ($rss !== null) {
         header('Content-Type: application/rss+xml; charset=utf-8');
         header('Cache-Control: public, max-age=300');
@@ -148,4 +175,18 @@ if ($is_html) {
     fail('kon geen nieuws vinden op de pagina (structuur gewijzigd?)');
 }
 
-xml_out($body, $contentType);
+if ($is_html && $looks_xml) {
+    // content-type lies; serve it as XML anyway
+    header('Content-Type: application/rss+xml; charset=utf-8');
+    header('Cache-Control: public, max-age=300');
+    echo $body;
+    exit;
+}
+
+if (!$looks_xml && !$is_html) {
+    fail('onverwacht antwoord van bron (geen RSS, geen HTML)');
+}
+
+header('Content-Type: ' . ($contentType ?: 'application/rss+xml; charset=utf-8'));
+header('Cache-Control: public, max-age=300');
+echo $body;

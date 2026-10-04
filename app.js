@@ -19,7 +19,7 @@
     { key: "hvzeeland", name: "HVZeeland", url: "https://www.hvzeeland.nl/RSS/Nieuws" },
     { key: "politie", name: "Politie Zeeland", url: "https://www.politie.nl/rss/zeeland.xml" },
     { key: "zvl", name: "Omroep ZVL", url: "https://www.omroepzvl.nl/nieuws" },
-    { key: "oostvl", name: "Nieuwsblad Oost-Vlaanderen", url: "https://www.nieuwsblad.be/regio/oost-vlaanderen/rss" }
+    { key: "avs", name: "AVS (Oost-Vlaanderen)", url: "https://avs.be/nieuws" }
   ];
 
   var DAYS_TO_SHOW = 3;         // keep items from the last N days in memory
