@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zeeland Vandaag — dagelijks nieuwsoverzicht</title>
+<meta name="description" content="Een lichtgewicht dagoverzicht van het Zeeuwse nieuws.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap">
+    <h1>Zeeland <span>Vandaag</span></h1>
+    <p class="subtitle" id="subtitle">Dagoverzicht van het lokale nieuws in Zeeland</p>
+  </div>
+</header>
+
+<nav class="controls wrap" aria-label="Filter en navigatie">
+  <div class="date-nav">
+    <button id="prevDay" class="btn" title="Vorige dag">&larr;</button>
+    <button id="todayBtn" class="btn btn-primary">Vandaag</button>
+    <button id="nextDay" class="btn" title="Volgende dag">&rarr;</button>
+    <span id="dayLabel" class="day-label"></span>
+  </div>
+  <div class="filters">
+    <select id="sourceFilter" class="btn" aria-label="Bron"></select>
+    <input id="search" class="btn search" type="search" placeholder="Zoeken…" aria-label="Zoeken">
+    <button id="refresh" class="btn" title="Verversen">&#8635; Verversen</button>
+  </div>
+</nav>
+
+<main class="wrap">
+  <div id="status" class="status" role="status"></div>
+  <section id="summary" class="summary" hidden></section>
+  <section id="newsList" class="news-list" aria-live="polite"></section>
+</main>
+
+<footer class="wrap footer">
+  <p>Bronnen: <span id="sourceList"></span></p>
+  <p class="fineprint">Automatisch samengesteld uit openbare RSS-feeds. Klik op een bericht om het volledige artikel bij de bron te lezen.</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
