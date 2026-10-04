@@ -13,14 +13,46 @@
   ];
 
   var FEEDS = [
-    { key: "omroepzeeland", name: "Omroep Zeeland", url: "https://www.omroepzeeland.nl/rss/index.xml" },
-    { key: "pzc", name: "PZC", url: "https://news.google.com/rss/search?q=site:pzc.nl+zeeland&hl=nl&gl=NL&ceid=NL:nl" },
-    { key: "bndestem", name: "BN DeStem", url: "https://news.google.com/rss/search?q=site:bndestem.nl+zeeland&hl=nl&gl=NL&ceid=NL:nl" },
-    { key: "hvzeeland", name: "HVZeeland", url: "https://www.hvzeeland.nl/RSS/Nieuws" },
-    { key: "politie", name: "Politie Zeeland", url: "https://rss.politie.nl/rss/ab/provincies/zeeland.xml" },
-    { key: "zvl", name: "Omroep ZVL", url: "https://www.omroepzvl.nl/nieuws" },
-    { key: "avs", name: "AVS (Oost-Vlaanderen)", url: "https://avs.be/nieuws" }
+    { key: "omroepzeeland", name: "Omroep Zeeland", region: "zeeland", url: "https://www.omroepzeeland.nl/rss/index.xml" },
+    { key: "pzc", name: "PZC", region: "zeeland", url: "https://news.google.com/rss/search?q=site:pzc.nl+zeeland&hl=nl&gl=NL&ceid=NL:nl" },
+    { key: "bndestem", name: "BN DeStem", region: "zeeland", url: "https://news.google.com/rss/search?q=site:bndestem.nl+zeeland&hl=nl&gl=NL&ceid=NL:nl" },
+    { key: "hvzeeland", name: "HVZeeland", region: "zeeland", url: "https://www.hvzeeland.nl/RSS/Nieuws" },
+    { key: "politie", name: "Politie Zeeland", region: "zeeland", url: "https://rss.politie.nl/rss/ab/provincies/zeeland.xml" },
+    { key: "zvl", name: "Omroep ZVL", region: "zeeland", url: "https://www.omroepzvl.nl/files/202509/sitemaps/1/sitemap_0.xml" },
+    { key: "avs", name: "AVS (Oost-Vlaanderen)", region: "vlaanderen", url: "https://avs.be/sitemaps-1-section-news-1-sitemap.xml" }
   ];
+  var REGIONS = [
+    { key: "zeeland", name: "Zeeland" },
+    { key: "vlaanderen", name: "Vlaanderen (Oost-Vlaanderen)" }
+  ];
+  var CATEGORIES = [
+    { key: "milieu", name: "Milieu" },
+    { key: "economie", name: "Economie" },
+    { key: "breaking", name: "Nieuwsflitsen" },
+    { key: "politiek", name: "Politiek" }
+  ];
+  // Keyword-based classification (title + description). First match wins;
+  // an item gets at most one category. Items that match nothing are shown
+  // in every category view under "Alle categorieën".
+  var CATEGORY_KEYWORDS = {
+    milieu: ["milieu", "natuur", "klimaat", "stikstof", "duurzaam", "groene", "energie", "zonnepark", "windmolen", "windmolens", "windturbine", "windturbines", "zonnepaneel", "zonnepanelen", "biodiversiteit", "waterkwaliteit", "afval", "recycling", "dieren", "dierenasiel", "vogel", "zeehond", "westerschelde", "oosterschelde", "kust", "duinen", "zand", "sluis", "sluizen", "waterstand", "bos", "staatsbosbeheer", "natuurpark", "pfas", "warmte", "waterstof", "afvoerkanaal"],
+    economie: ["economie", "bedrijf", "bedrijven", "ondernemer", "ondernemers", "werkgelegenheid", "banen", "vacature", "sollicit", "investering", "miljoen", "miljoenen", "omzet", "winst", "faillissement", "haven", "north sea port", "industrie", "fabriek", "logistiek", "toerisme", "hotel", "horeca", "winkel", "winkelcentrum", "supermarkt", "boer", "boeren", "landbouw", "akkerbouw", "tuinbouw", "visser", "prijzen", "inflatie", "woningprijzen", "vastgoed", "bedrijventerrein", "kerncentrale", "kernenergie", "datacenter", "startup", "start-up"],
+    breaking: ["politie", "brandweer", "ambulance", "ongeval", "aanrijding", "botsing", "brand", "dood", "dode", "overleden", "vermoord", "moord", "slachtoffer", "gewond", "gewonden", "levensgevaar", "spoed", "112", "traumahelikopter", "reddings", "vermist", "vermissing", "aangehouden", "arrestatie", "opgepakt", "verdachte", "inbraak", "diefstal", "overval", "vechtpartij", "steekpartij", "schietpartij", "explosie", "gaslek", "wateroverlast", "storm", "code rood", "code oranje"],
+    politiek: ["gemeenteraad", "provincieraad", "provincie", "gedeputeerde", "gouverneur", "burgemeester", "wethouder", "schepen", "parlement", "tweede kamer", "minister", "raadsvergadering", "raadsbesluit", "motie", "amendement", "besluit", "wet", "regelgeving", "vergunning", "bestemmingsplan", "grondruil", "ontheffing", "subsidie", "begroting", "belasting", "heffing", "tarieven", "coalitie", "oppositie", "verkiezing", "partij", "cda", "vvd", "d66", "pvda", "groenlinks", "n-va", "open vld", "cd&v", "vooruit", "vlaams belang"]
+  };
+  function classifyItem(it) {
+    var text = (it.title + " " + (it.description || "")).toLowerCase();
+    var best = null;
+    var bestScore = 0;
+    CATEGORIES.forEach(function (cat) {
+      var score = 0;
+      (CATEGORY_KEYWORDS[cat.key] || []).forEach(function (kw) {
+        if (text.indexOf(kw) !== -1) score += 1;
+      });
+      if (score > bestScore) { bestScore = score; best = cat.key; }
+    });
+    return best;
+  }
 
   var DAYS_TO_SHOW = 3;         // keep items from the last N days in memory
   var CACHE_KEY = "zeeland-vandaag-cache";
@@ -30,6 +62,7 @@
   var items = [];
   var selectedDay = todayKey();
   var activeSource = "all";
+  var activeCategory = "all";
   var query = "";
 
   // --- DOM -------------------------------------------------------------------
@@ -163,6 +196,8 @@
           parsed.forEach(function (it) {
             it.sourceKey = feed.key;
             it.sourceName = feed.name;
+            it.region = feed.region;
+            it.category = classifyItem(it);
           });
           return parsed;
         })
@@ -209,6 +244,7 @@
     dayLabelEl.textContent = formatDayLabel(selectedDay);
     var dayItems = itemsForDay(selectedDay);
     if (activeSource !== "all") dayItems = dayItems.filter(function (it) { return it.sourceKey === activeSource; });
+    if (activeCategory !== "all") dayItems = dayItems.filter(function (it) { return it.category === activeCategory; });
     if (query) {
       var q = query.toLowerCase();
       dayItems = dayItems.filter(function (it) {
@@ -228,7 +264,14 @@
     }
 
     var frag = document.createDocumentFragment();
-    dayItems.forEach(function (it) {
+    REGIONS.forEach(function (region) {
+      var regionItems = dayItems.filter(function (it) { return it.region === region.key; });
+      if (!regionItems.length) return;
+      var heading = document.createElement("h2");
+      heading.className = "region-header";
+      heading.textContent = region.name + " (" + regionItems.length + ")";
+      frag.appendChild(heading);
+      regionItems.forEach(function (it) {
       var card = document.createElement("article");
       card.className = "card";
 
@@ -240,6 +283,16 @@
       var src = document.createElement("span");
       src.textContent = it.sourceName || "";
       meta.appendChild(time);
+      if (it.category) {
+        var catName = "";
+        CATEGORIES.forEach(function (c) { if (c.key === it.category) catName = c.name; });
+        if (catName) {
+          var cat = document.createElement("span");
+          cat.className = "cat-tag cat-" + it.category;
+          cat.textContent = catName;
+          meta.appendChild(cat);
+        }
+      }
       meta.appendChild(src);
       card.appendChild(meta);
 
@@ -258,7 +311,8 @@
         d.textContent = short;
         card.appendChild(d);
       }
-      frag.appendChild(card);
+        frag.appendChild(card);
+      });
     });
     listEl.appendChild(frag);
   }
@@ -276,6 +330,23 @@
     summaryEl.textContent =
       "Vandaag " + dayItems.length + " bericht" + (dayItems.length === 1 ? "" : "en") +
       " van " + Object.keys(bySource).length + " bron(nen): " + parts.join(", ");
+  }
+
+  function renderCategoryFilter() {
+    var sel = el("categoryFilter");
+    if (!sel) return;
+    sel.innerHTML = "";
+    var optAll = document.createElement("option");
+    optAll.value = "all";
+    optAll.textContent = "Alle categorieën";
+    sel.appendChild(optAll);
+    CATEGORIES.forEach(function (c) {
+      var o = document.createElement("option");
+      o.value = c.key;
+      o.textContent = c.name;
+      sel.appendChild(o);
+    });
+    sel.value = activeCategory;
   }
 
   function renderSourceFilter() {
@@ -307,12 +378,17 @@
   });
   el("todayBtn").addEventListener("click", function () { selectedDay = todayKey(); render(); });
   sourceFilterEl.addEventListener("change", function () { activeSource = sourceFilterEl.value; render(); });
+  var categoryFilterEl = el("categoryFilter");
+  if (categoryFilterEl) {
+    categoryFilterEl.addEventListener("change", function () { activeCategory = categoryFilterEl.value; render(); });
+  }
   searchEl.addEventListener("input", function () { query = searchEl.value.trim(); render(); });
   refreshBtn.addEventListener("click", function () { localStorage.removeItem(CACHE_KEY); fetchAll(); });
 
   // --- Init ---------------------------------------------------------------------
   renderFooter();
   renderSourceFilter();
+  renderCategoryFilter();
   var cached = loadCache();
   if (cached) {
     items = cached;

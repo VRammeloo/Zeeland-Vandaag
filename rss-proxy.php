@@ -75,6 +75,50 @@ function fail($msg) {
     exit($msg);
 }
 
+// --- Sitemap mode: XML sitemap -> RSS ---------------------------------------
+// Sources like AVS and Omroep ZVL expose a news sitemap with real article
+// URLs and lastmod dates. This yields clean articles (no category pages).
+function sitemap_to_rss($body, $source_host) {
+    $dom = new DOMDocument();
+    libxml_use_internal_errors(true);
+    $dom->loadXML($body);
+    libxml_clear_errors();
+    $xpath = new DOMXPath($dom);
+    $entries = [];
+    foreach ($xpath->query('//url') as $urlNode) {
+        $locs = $urlNode->getElementsByTagName('loc');
+        $mods = $urlNode->getElementsByTagName('lastmod');
+        if ($locs->length === 0) continue;
+        $loc = trim($locs->item(0)->textContent);
+        $path = parse_url($loc, PHP_URL_PATH);
+        if (!preg_match('~/nieuws/([^/]+)$~', $path, $m)) continue;
+        $slug = $m[1];
+        if ($slug === '') continue;
+        $ts = $mods->length > 0 ? strtotime($mods->item(0)->textContent) : false;
+        if ($ts === false || $ts === -1) $ts = time();
+        $title = ucfirst(str_replace('-', ' ', $slug));
+        $entries[] = ['ts' => $ts, 'loc' => $loc, 'title' => $title];
+    }
+    usort($entries, function ($a, $b) { return $b['ts'] - $a['ts']; });
+    $entries = array_slice($entries, 0, 60);
+    $items = '';
+    foreach ($entries as $e) {
+        $items .= "    <item>\n"
+            . "      <title>" . htmlspecialchars($e['title'], ENT_XML1, 'UTF-8') . "</title>\n"
+            . "      <link>" . htmlspecialchars($e['loc'], ENT_XML1, 'UTF-8') . "</link>\n"
+            . "      <guid>" . htmlspecialchars($e['loc'], ENT_XML1, 'UTF-8') . "</guid>\n"
+            . "      <pubDate>" . date('D, d M Y H:i:s O', $e['ts']) . "</pubDate>\n"
+            . "    </item>\n";
+    }
+    if ($items === '') return null;
+    return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+        . "<rss version=\"2.0\">\n  <channel>\n"
+        . "    <title>Nieuws</title>\n"
+        . "    <link>" . htmlspecialchars('https://' . $source_host, ENT_XML1, 'UTF-8') . "</link>\n"
+        . $items
+        . "  </channel>\n</rss>\n";
+}
+
 // --- Scrape mode: HTML news listing -> RSS ---------------------------------
 // Handles sources without an RSS feed. Extracts article links, titles,
 // and (when present) Dutch dates like "za 3 oktober".
@@ -164,6 +208,17 @@ if ($status >= 400) {
 
 $ct = strtolower($contentType ?: '');
 $is_html = strpos($ct, 'html') !== false;
+$looks_sitemap = strpos($body, '<urlset') !== false;
+if ($looks_sitemap) {
+    $rss = sitemap_to_rss($body, strtolower($host));
+    if ($rss !== null) {
+        header('Content-Type: application/rss+xml; charset=utf-8');
+        header('Cache-Control: public, max-age=300');
+        echo $rss;
+        exit;
+    }
+    fail('kon geen nieuws vinden in de sitemap');
+}
 $looks_xml = (strpos($body, '<rss') !== false) || (strpos($body, '<feed') !== false) || (strpos($body, '<?xml') !== false);
 
 if ($is_html && !$looks_xml) {

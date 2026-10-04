@@ -130,3 +130,26 @@ article.card a.headline:hover { color: var(--accent); text-decoration: underline
   .date-nav, .filters { justify-content: space-between; }
   .search { flex: 1; }
 }
+
+/* Region grouping and category tags */
+.region-header {
+  margin: 26px 0 10px;
+  font-size: 1.15rem;
+  color: var(--accent);
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 4px;
+}
+.region-header:first-child { margin-top: 8px; }
+.cat-tag {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #fff;
+  background: #64748b;
+}
+.cat-milieu { background: #16a34a; }
+.cat-economie { background: #2563eb; }
+.cat-breaking { background: #dc2626; }
+.cat-politiek { background: #7c3aed; }
