@@ -83,9 +83,8 @@ function sitemap_to_rss($body, $source_host) {
     libxml_use_internal_errors(true);
     $dom->loadXML($body);
     libxml_clear_errors();
-    $xpath = new DOMXPath($dom);
     $entries = [];
-    foreach ($xpath->query('//url') as $urlNode) {
+    foreach ($dom->getElementsByTagName('url') as $urlNode) {
         $locs = $urlNode->getElementsByTagName('loc');
         $mods = $urlNode->getElementsByTagName('lastmod');
         if ($locs->length === 0) continue;

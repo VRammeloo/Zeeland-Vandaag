@@ -149,7 +149,14 @@ article.card a.headline:hover { color: var(--accent); text-decoration: underline
   color: #fff;
   background: #64748b;
 }
-.cat-milieu { background: #16a34a; }
-.cat-economie { background: #2563eb; }
+.cat-sport { background: #ea580c; }
 .cat-breaking { background: #dc2626; }
 .cat-politiek { background: #7c3aed; }
+.cat-economie { background: #2563eb; }
+.cat-milieu { background: #16a34a; }
+.cat-recreatie { background: #db2777; }
+.cat-cultuur { background: #9333ea; }
+.cat-onderwijs { background: #0891b2; }
+.cat-gezondheid { background: #059669; }
+.cat-verkeer { background: #475569; }
+.cat-landbouw { background: #65a30d; }
